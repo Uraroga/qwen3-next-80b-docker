@@ -29,7 +29,7 @@ Software:
 - Docker Engine
 - `llama.cpp` revisione fissata a `b9858`
 - modello `Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf`
-- contesto iniziale: 4096 token
+- contesto verificato: 16.384 token
 - un solo slot parallelo
 - Web UI integrata di `llama-server`
 
@@ -180,7 +180,7 @@ MODEL_HOST_DIR=/percorso/ai/modelli
 MODEL_CONTAINER_DIR=/models
 MODEL_FILENAME=Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf
 
-CONTEXT_SIZE=4096
+CONTEXT_SIZE=16384
 N_GPU_LAYERS=auto
 TENSOR_SPLIT=
 SPLIT_MODE=layer
