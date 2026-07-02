@@ -1,0 +1,79 @@
+FROM ubuntu:24.04 AS build
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG LLAMA_CPP_REF=b9858
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        cmake \
+        g++ \
+        git \
+        make \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /src
+
+RUN git clone https://github.com/ggml-org/llama.cpp.git llama.cpp \
+    && cd llama.cpp \
+    && git checkout "${LLAMA_CPP_REF}"
+
+WORKDIR /src/llama.cpp
+
+RUN cmake -S . -B build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DGGML_RPC=ON \
+        -DGGML_NATIVE=OFF \
+        -DGGML_AVX=ON \
+        -DGGML_AVX2=OFF \
+        -DGGML_FMA=OFF \
+        -DGGML_F16C=ON \
+        -DGGML_BMI2=OFF \
+        -DGGML_CUDA=OFF \
+        -DGGML_HIP=OFF \
+        -DGGML_VULKAN=OFF \
+        -DGGML_SYCL=OFF \
+        -DGGML_BLAS=OFF \
+        -DGGML_OPENMP=ON \
+        -DLLAMA_BUILD_TESTS=OFF \
+        -DLLAMA_BUILD_EXAMPLES=OFF \
+        -DLLAMA_BUILD_SERVER=OFF \
+        -DLLAMA_BUILD_TOOLS=ON \
+    && cmake --build build --config Release --target ggml-rpc-server --parallel "$(nproc)" \
+    && test -x build/bin/ggml-rpc-server \
+    && build/bin/ggml-rpc-server --help
+
+FROM ubuntu:24.04 AS runtime
+
+ARG DEBIAN_FRONTEND=noninteractive
+ARG LLAMA_CPP_REF=b9858
+
+LABEL org.opencontainers.image.source="https://github.com/ggml-org/llama.cpp" \
+      org.opencontainers.image.revision="${LLAMA_CPP_REF}" \
+      org.opencontainers.image.description="ggml-rpc-server CPU AVX senza AVX2 per llama.cpp" \
+      org.opencontainers.image.licenses="MIT"
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        libgcc-s1 \
+        libgomp1 \
+        libstdc++6 \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 10001 llama \
+    && useradd --uid 10001 --gid 10001 --home-dir /var/cache/llama.cpp --shell /usr/sbin/nologin llama \
+    && mkdir -p /var/cache/llama.cpp/rpc \
+    && chown -R 10001:10001 /var/cache/llama.cpp
+
+COPY --from=build /src/llama.cpp/build/bin/ggml-rpc-server /usr/local/bin/ggml-rpc-server
+
+# ggml-rpc-server aggiunge la sottodirectory rpc alla base LLAMA_CACHE,
+# ottenendo /var/cache/llama.cpp/rpc.
+ENV LLAMA_CACHE=/var/cache/llama.cpp
+
+USER 10001:10001
+
+EXPOSE 50052
+
+ENTRYPOINT ["ggml-rpc-server"]
+CMD ["--host", "0.0.0.0", "--port", "50052"]

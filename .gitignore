@@ -1,0 +1,45 @@
+# File di configurazione locali
+.env
+.env.*
+!.env.example
+
+# Modelli e pesi locali
+*.gguf
+*.gguf.*
+models/
+model/
+modelli/
+llama-cpp-models/
+
+# Log
+logs/*
+!logs/.gitkeep
+*.log
+
+# Cache
+.cache/
+cache/
+tmp/
+temp/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.npm/
+.pnpm-store/
+node_modules/.cache/
+
+# File temporanei degli editor
+*~
+*.swp
+*.swo
+*.tmp
+*.bak
+*.orig
+.vscode/
+.idea/
+
+# File di sistema comuni
+.DS_Store
+Thumbs.db
+desktop.ini
