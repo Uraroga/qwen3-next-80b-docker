@@ -618,6 +618,10 @@ Contributi, test su hardware differente e segnalazioni sono benvenuti.
 
 ## Licenza
 
-La licenza del codice di questo repository non è ancora stata definita.
+Questo progetto è software libero distribuito con licenza MIT.
+
+Chiunque può usare, copiare, modificare e ridistribuire il codice, anche per scopi commerciali, mantenendo l'avviso di copyright e il testo della licenza.
+
+Il testo completo è disponibile nel file [`LICENSE`](LICENSE).
 
 Le licenze di `llama.cpp`, Qwen e del modello utilizzato restano separate e devono essere rispettate.
