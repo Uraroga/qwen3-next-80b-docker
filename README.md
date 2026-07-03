@@ -188,6 +188,41 @@ SPLIT_MODE=layer
 SERVER_PARALLEL=1
 SERVER_UI_ENABLED=true
 ```
+### Preparare la directory del modello
+
+`MODEL_HOST_DIR` deve indicare la directory dell’host che contiene il modello GGUF.
+
+Non copiare letteralmente i percorsi usati da altri utenti, come `/home/sergio/llama-cpp-models`. Ogni utente deve indicare un percorso valido sul proprio nodo principale.
+
+Esempio:
+
+```bash
+mkdir -p "$HOME/llama-cpp-models"
+realpath "$HOME/llama-cpp-models"
+```
+
+Se il comando restituisce:
+
+```text
+/home/mario/llama-cpp-models
+```
+
+e il modello si trova in quella directory, configurare `.env` in questo modo:
+
+```env
+MODEL_HOST_DIR=/home/mario/llama-cpp-models
+MODEL_CONTAINER_DIR=/models
+MODEL_FILENAME=Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf
+```
+
+Verificare che il file esista:
+
+```bash
+ls -lh \
+  /home/mario/llama-cpp-models/Qwen3-Next-80B-A3B-Instruct-Q4_K_M.gguf
+```
+
+Il modello GGUF non è incluso nel repository e deve essere scaricato separatamente.
 
 ### Configurazione di argo3
 
